@@ -4,6 +4,7 @@ from subprocess import Popen, TimeoutExpired
 import os
 
 
+OUTPUT_DIR = "/srv/acme/certs/"
 CONF_DIR = "/srv/acme/conf/"
 WEB_ROOT = "/srv/acme/webroot/"
 
@@ -16,12 +17,14 @@ def main():
         with open(os.path.join(domain_dir, "aliases")) as f:
             aliases = [i.strip() for i in f.read().strip().split()]
 
-        call_le(email, aliases, domain_dir)
+        output_dir = os.path.join(OUTPUT_DIR, name)
+        os.makedirs(output_dir, exist_ok=True)
+        os.chdir(output_dir)
+        call_le(email, aliases)
 
 
-def call_le(email, domain_names, cwd):
+def call_le(email, domain_names):
     assert domain_names
-    os.chdir(cwd)
 
     le_call = ["simp_le",
                "--email", email,
@@ -46,6 +49,8 @@ def call_le(email, domain_names, cwd):
         print("no renew needed for {}".format(domain_names[0]))
     elif p.returncode == 2:
         print("error updating {}1".format(domain_names[0]))
+
+    return p.returncode
 
 
 if __name__ == '__main__':
