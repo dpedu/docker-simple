@@ -1,0 +1,6 @@
+#!/bin/bash -eux
+
+mkdir -p /srv/acme/webroot/.well-known/acme-challenge /srv/acme/conf /srv/acme/logs
+chown -R simplecert /srv/acme
+
+exec cron -f
